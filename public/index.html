@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sentinel-Node Operator Dashboard</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <h1>SENTINEL-NODE<span>™</span> Operator Dashboard</h1>
+  <span class="conn" id="conn">connecting…</span>
+  <nav><a href="report.html">Passenger report page ↗</a></nav>
+</header>
+<main>
+  <div id="banner" class="banner">Loading…</div>
+  <div class="grid cards" id="cards"></div>
+
+  <div class="grid two" style="margin-bottom:14px">
+    <div class="panel">
+      <h2>Live vibration — <span id="selName">–</span>
+        <span style="margin-left:auto;display:flex;gap:6px">
+          <button class="sm ghost" id="simVoid" title="Demo: make this node report a void for 20s">Simulate void</button>
+          <button class="sm ghost" id="simSafe">Reset</button>
+        </span></h2>
+      <canvas id="wave" height="150"></canvas>
+      <div class="grid two-eq" style="margin-top:12px">
+        <div><div class="hint">Spectrum (0–8 kHz)</div><canvas id="spec" height="110"></canvas></div>
+        <div><div class="hint">Anomaly score, last 3 min (dashed = alert threshold 0.7)</div><canvas id="hist" height="110"></canvas></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Alerts</h2>
+      <div class="scroll" id="alerts"></div>
+    </div>
+  </div>
+
+  <div class="grid two">
+    <div class="panel"><h2>Map — sensors &amp; passenger reports</h2><div id="map"></div></div>
+    <div class="panel"><h2>Passenger reports</h2><div class="scroll" id="reports" style="max-height:360px"></div></div>
+  </div>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

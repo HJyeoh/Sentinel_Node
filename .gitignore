@@ -1,0 +1,4 @@
+node_modules
+sentinel.db*
+uploads/*
+!uploads/.gitkeep

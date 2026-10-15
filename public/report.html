@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report a Sinkhole</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><h1>SENTINEL-NODE<span>™</span> Report a Road Problem</h1><nav><a href="index.html">Operator dashboard ↗</a></nav></header>
+<main class="narrow">
+  <div class="panel">
+    <p>Seen a dip, crack, hole or pooling water on the road? Tell us — it helps our sensors and crew find problems early. <b>If someone is in immediate danger, call 999.</b></p>
+    <form id="f">
+      <label>Where is it?</label>
+      <button type="button" class="ghost" id="gps">📍 Use my current location</button>
+      <div id="pickmap" style="margin-top:8px"></div>
+      <div class="hint" id="locHint">Tap the map to drop a pin.</div>
+
+      <div class="row">
+        <div><label for="type">What did you see?</label>
+          <select id="type" required><option value="crack">Crack</option><option value="dip">Dip / sagging road</option><option value="hole">Hole</option><option value="water_pooling">Water pooling</option><option value="other">Other</option></select></div>
+        <div><label for="severity">How serious?</label>
+          <select id="severity" required><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High / dangerous</option></select></div>
+      </div>
+
+      <label for="description">Describe it</label>
+      <textarea id="description" rows="4" maxlength="1000" placeholder="e.g. Road surface dipped about 10 cm near the culvert"></textarea>
+
+      <label for="photo">Photo (optional)</label>
+      <input type="file" id="photo" accept="image/jpeg,image/png,image/webp">
+      <div class="hint">Max 5 MB.</div>
+
+      <label for="contact">Contact (optional)</label>
+      <input id="contact" maxlength="120" placeholder="Email or phone, only if you want a follow-up">
+
+      <div style="margin-top:16px"><button type="submit" id="send">Submit report</button></div>
+      <div class="msg" id="msg"></div>
+    </form>
+  </div>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="report.js"></script>
+</body>
+</html>
