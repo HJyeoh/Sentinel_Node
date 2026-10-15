@@ -141,6 +141,9 @@ function initMap() {
   if (typeof L === 'undefined') { $('map').innerHTML = '<div class="empty">Map library failed to load (offline?). Sensor data still works.</div>'; return; }
   map = L.map('map').setView(first ? [first.lat, first.lng] : [3.07, 101.52], 16);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+  // Re-measure when the panel resizes (browser zoom, window resize, layout settling).
+  new ResizeObserver(() => map.invalidateSize()).observe($('map'));
+  setTimeout(() => map.invalidateSize(), 300);
 }
 function setNodeMarker(id, n) {
   if (!map) return;

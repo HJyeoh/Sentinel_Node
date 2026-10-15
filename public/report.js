@@ -15,6 +15,8 @@ function setPin(lat, lng) {
   map = L.map('pickmap').setView(center, 16);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
   map.on('click', (e) => setPin(e.latlng.lat, e.latlng.lng));
+  new ResizeObserver(() => map.invalidateSize()).observe($('pickmap'));
+  setTimeout(() => map.invalidateSize(), 300);
 })();
 
 $('gps').onclick = () => {
