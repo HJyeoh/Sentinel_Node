@@ -34,6 +34,12 @@ const srv = app.listen(0, async () => {
     assert.equal((await fetch(`${base}/uploads/${rep.photo}`)).status, 200);
     assert.equal((await post(`/api/reports/${rep.id}`, { status: 'verified' }, 'PATCH')).status, 200);
     assert.equal((await post(`/api/reports/${rep.id}`, { status: 'nope' }, 'PATCH')).status, 400);
+    const del = (p) => fetch(base + p, { method: 'DELETE' });
+    assert.equal((await del('/api/alerts/' + alerts[0].id)).status, 200, 'cleared alert deletable');
+    assert.equal((await del('/api/alerts/' + alerts[0].id)).status, 404);
+    assert.equal((await del('/api/reports/' + rep.id)).status, 200);
+    assert.equal((await fetch(`${base}/uploads/${rep.photo}`)).status, 404, 'photo removed');
+    assert.equal((await del('/api/reports/' + rep.id)).status, 404);
     console.log('All API tests passed');
   } catch (e) { console.error('FAIL', e); process.exitCode = 1; }
   srv.close(); setTimeout(() => process.exit(), 100);

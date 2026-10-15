@@ -220,6 +220,27 @@ app.patch('/api/reports/:id', (req, res) => {
   res.json(report);
 });
 
+app.delete('/api/reports/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const r = db.prepare('SELECT * FROM reports WHERE id=?').get(id);
+  if (!r) return res.status(404).json({ error: 'Not found' });
+  db.prepare('DELETE FROM reports WHERE id=?').run(id);
+  if (r.photo) fs.rmSync(path.join(UPLOAD_DIR, path.basename(r.photo)), { force: true });
+  broadcast('report_deleted', { id });
+  res.json({ ok: true });
+});
+
+// Only cleared alerts can be deleted; an active alert must resolve first.
+app.delete('/api/alerts/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const a = db.prepare('SELECT * FROM alerts WHERE id=?').get(id);
+  if (!a) return res.status(404).json({ error: 'Not found' });
+  if (a.status === 'active') return res.status(409).json({ error: 'Active alerts cannot be deleted.' });
+  db.prepare('DELETE FROM alerts WHERE id=?').run(id);
+  broadcast('alert_deleted', { id });
+  res.json({ ok: true });
+});
+
 // Live stream
 app.get('/api/stream', (req, res) => {
   res.set({ 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });

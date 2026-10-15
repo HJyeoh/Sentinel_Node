@@ -37,6 +37,18 @@ function connect() {
   es.addEventListener('reading', (e) => onReading(JSON.parse(e.data)));
   es.addEventListener('alert', (e) => onAlert(JSON.parse(e.data)));
   es.addEventListener('report', (e) => onReport(JSON.parse(e.data)));
+  es.addEventListener('report_deleted', (e) => {
+    const { id } = JSON.parse(e.data);
+    reports = reports.filter((r) => r.id !== id);
+    if (reportMarkers[id]) { map.removeLayer(reportMarkers[id]); delete reportMarkers[id]; }
+    renderReports();
+  });
+  es.addEventListener('alert_deleted', (e) => { const { id } = JSON.parse(e.data); alerts = alerts.filter((a) => a.id !== id); renderAlerts(); });
+}
+
+async function del(url, what) {
+  if (!confirm(`Delete this ${what}? This cannot be undone.`)) return;
+  try { await j(url, { method: 'DELETE' }); } catch { alert(`Could not delete the ${what}.`); }
 }
 
 function onReading(r) {
@@ -98,9 +110,11 @@ function renderCards() {
 }
 
 function renderAlerts() {
-  $('alerts').innerHTML = alerts.length ? `<table><tr><th>Node</th><th>Started</th><th>Peak</th><th></th></tr>${alerts.map((a) =>
-    `<tr><td>${esc(a.node_id)}</td><td>${new Date(a.started).toLocaleTimeString()}</td><td>${(a.peak_anomaly ?? 0).toFixed(2)}</td><td><span class="tag ${esc(a.status)}">${esc(a.status)}</span></td></tr>`).join('')}</table>`
+  $('alerts').innerHTML = alerts.length ? `<table><tr><th>Node</th><th>Started</th><th>Peak</th><th></th><th></th></tr>${alerts.map((a) =>
+    `<tr><td>${esc(a.node_id)}</td><td>${new Date(a.started).toLocaleTimeString()}</td><td>${(a.peak_anomaly ?? 0).toFixed(2)}</td><td><span class="tag ${esc(a.status)}">${esc(a.status)}</span></td>
+    <td>${a.status === 'active' ? '' : `<button class="sm ghost" data-da="${a.id}" title="Delete alert">🗑</button>`}</td></tr>`).join('')}</table>`
     : '<div class="empty">No alerts yet.</div>';
+  document.querySelectorAll('#alerts button[data-da]').forEach((b) => (b.onclick = () => del('/api/alerts/' + b.dataset.da, 'alert')));
 }
 
 function renderReports() {
@@ -110,8 +124,10 @@ function renderReports() {
       <b>${esc(r.type.replace('_', ' '))}</b> <span class="tag ${esc(r.severity)}">${esc(r.severity)}</span><br>
       ${esc(r.description)}<br><span class="hint">${r.nearest_node ? `Nearest sensor ${esc(r.nearest_node)} (${Math.round(r.nearest_m)} m)` : ''}${r.contact ? ' · ' + esc(r.contact) : ''}</span></td>
     <td><span class="tag ${esc(r.status)}">${esc(r.status)}</span><br>
-      ${['new', 'verified', 'resolved'].filter((s) => s !== r.status).map((s) => `<button class="sm ghost" data-r="${r.id}" data-s="${s}">${s}</button>`).join(' ')}</td></tr>`).join('')}</table>`
+      ${['new', 'verified', 'resolved'].filter((s) => s !== r.status).map((s) => `<button class="sm ghost" data-r="${r.id}" data-s="${s}">${s}</button>`).join(' ')}
+      <button class="sm ghost" data-dr="${r.id}" title="Delete report">🗑</button></td></tr>`).join('')}</table>`
     : '<div class="empty">No passenger reports yet.</div>';
+  document.querySelectorAll('#reports button[data-dr]').forEach((b) => (b.onclick = () => del('/api/reports/' + b.dataset.dr, 'report')));
   document.querySelectorAll('#reports button[data-r]').forEach((b) => (b.onclick = async () => {
     b.disabled = true;
     try { await j('/api/reports/' + b.dataset.r, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: b.dataset.s }) }); }
